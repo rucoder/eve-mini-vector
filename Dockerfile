@@ -1,11 +1,11 @@
 # Copyright (c) 2024 Zededa, Inc.
 # SPDX-License-Identifier: Apache-2.0
 
-ARG VECTOR_FEATURES="--no-default-features"
+ARG VECTOR_FEATURES='--no-default-features --features sinks-opentelemetry,sources-syslog,unix,sources-file,sources-internal_metrics,sources-host_metrics,transforms-remap'
 ARG RUST_VERSION=lfedge/eve-rust:1.84.1
 FROM --platform=$BUILDPLATFORM ${RUST_VERSION} AS toolchain-base
 ARG TARGETARCH
-RUN apk update && apk add --no-cache musl-dev clang mold git perl protoc
+RUN apk update && apk add --no-cache git perl protoc
 
 FROM toolchain-base AS target-amd64
 ENV CARGO_BUILD_TARGET="x86_64-unknown-linux-musl"
@@ -48,7 +48,7 @@ COPY --from=cacher $CARGO_HOME $CARGO_HOME
 RUN echo "Cargo target: $CARGO_BUILD_TARGET"
 
 RUN cargo build --release $VECTOR_FEATURES
-RUN cargo sbom > sbom.spdx.json
+#RUN cargo sbom > sbom.spdx.json
 RUN cp /app/target/$CARGO_BUILD_TARGET/release/vector /app/target/
 
 
